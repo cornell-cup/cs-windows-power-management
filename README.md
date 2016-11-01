@@ -1,0 +1,1 @@
+# cs-windows-power-management
