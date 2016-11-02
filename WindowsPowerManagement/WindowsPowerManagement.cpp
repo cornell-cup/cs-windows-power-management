@@ -4,6 +4,7 @@
 #include<stdio.h>
 #include<Windows.h>
 #include<PowrProf.h>
+#include<string>
 
 
 void GetAll() {
@@ -51,19 +52,12 @@ void GetAll() {
 					printf("Setting Error: %d\n", error);
 				}
 
-				DWORD minvalue = 0;
-				DWORD maxvalue = 0;
-				nameSize = 2048;
-				if ((error = PowerReadPossibleValue(0, &subguid, &settingguid, 0, settingIndex, name, &nameSize)) == 0) {
-					PowerReadValueMin(0, &subguid, &settingguid, &minvalue);
-					PowerReadValueMax(0, &subguid, &settingguid, &maxvalue);
-					printf("      ");
-					for (int i = 0; i < nameSize; i++) printf("%d ", name[i]);
-					printf(" (%d - %d)\n", minvalue, maxvalue);
-				}
-				else {
-					printf("Read Error: %d\n", error);
-				}
+				DWORD DCValueIndex = 0;
+				DWORD DCDefaultIndex = 0;
+				PowerReadDCValueIndex(0, &guid, &subguid, &settingguid, &DCValueIndex);
+				PowerReadDCDefaultIndex(0, &guid, &subguid, &settingguid, &DCDefaultIndex);
+				printf("    ");
+				printf(" Value: %d, Default: %d\n", DCValueIndex, DCDefaultIndex);
 
 				settingIndex++;
 			}
