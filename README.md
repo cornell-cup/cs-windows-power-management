@@ -2,11 +2,11 @@
 
 TODO:
 
-write DC values, read/write AC values
+read/write AC values
 
 * GetSchemeGuid(string friendlyname)
-* GetSubgroupGuid(string friendlyname)
-* GetSettingGuid(string friendlyname)
+* GetSubgroupGuid(string friendlyname, string friendlysubname)
+* GetSettingGuid(string friendlyname, string friendlysubname, string friendlysettingsname)
 * SetSetting(GUID subgroupguid, unsigned int settingIndex, DWORD value, unsigned int option)
 * SetSetting(GUID settingguid, DWORD value, unsigned int option)
 * ResetToDefaultSetting(GUID subgroupguid, unsigned int settingIndex, unsigned int option)
