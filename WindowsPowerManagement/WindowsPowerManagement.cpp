@@ -6,7 +6,6 @@
 #include<PowrProf.h>
 #include<wchar.h>
 #include<string>
-#include<list>
 
 
 void GetAll() {
@@ -66,10 +65,8 @@ void GetAll() {
 				printf("  DC Value: %d, AC Value: %d, DC Default: %d, AC Default: %d\n", DCValueIndex, ACValueIndex, DCDefaultIndex, ACDefaultIndex);
 				settingIndex++;
 			}
-
 			subgroupIndex++;
 		}
-
 		schemeIndex++;
 	}
 }
@@ -114,7 +111,6 @@ CHAR* remove_zeros(UCHAR a[])
 		if ((unsigned int)a[si] != 0 && (unsigned int)a[si + 1] == 0) {
 			b[di] = a[si];    // Keep/move the element
 			di++;
-			
 		}
 	}
 	b[di] = '\0';
@@ -183,7 +179,6 @@ GUID GetSubgroupGUID(char friendlyName[], char friendlySubName[]) {
 		else {
 			printf("Error: %d\n", error);
 		}
-		
 		schemeIndex++;
 	}
 	return subgroupguid;
@@ -204,11 +199,6 @@ GUID GetSettingGUID(char friendlyName[], char friendlySubName[], char friendlySe
 		std::wstring wideName = utf8_decode(friendlyName);
 		DWORD error;
 		if ((error = PowerReadFriendlyName(0, &guid, &NO_SUBGROUP_GUID, 0, name, &nameSize)) == 0) {
-			//wprintf(L"%s\n", name);
-			//wprintf(L"%s\n", reinterpret_cast<UCHAR*> (const_cast<wchar_t *> (wideName.c_str())));
-			//for (int i = 0; i < wideName.size(); i++)printf("%x", wideName[i]);
-			//printf("\n");
-			//printf("%s\n", remove_zeros(name));
 			if (strcmp(remove_zeros(name), friendlyName) == 0 && found == false) {
 				while (PowerEnumerate(0, &guid, 0, ACCESS_SUBGROUP, subgroupIndex, (UCHAR*)&subguid, &subguidSize) == 0) {
 					UCHAR subname[2048];
@@ -277,10 +267,6 @@ void SetSetting(GUID schemeguid, GUID subgroupguid, GUID settingguid, DWORD valu
 	if (option == 0) {
 		PowerWriteDCValueIndex(0, &schemeguid, &subgroupguid, &settingguid, DCValueIndex);
 		PowerWriteACValueIndex(0, &schemeguid, &subgroupguid, &settingguid, ACValueIndex);
-		PowerReadDCValueIndex(0, &schemeguid, &subgroupguid, &settingguid, &DCValueIndex);
-		PowerReadACValueIndex(0, &schemeguid, &subgroupguid, &settingguid, &ACValueIndex);
-		printf("    ");
-		printf("  DC Value: %d, AC Value: %d\n", DCValueIndex, ACValueIndex);
 	}
 	else if (option == 1) {
 		PowerWriteACValueIndex(0, &schemeguid, &subgroupguid, &settingguid, ACValueIndex);
@@ -290,9 +276,119 @@ void SetSetting(GUID schemeguid, GUID subgroupguid, GUID settingguid, DWORD valu
 	}
 }
 
+void ResetToDefaultSetting(GUID schemeguid, GUID subgroupguid, unsigned int settingIndex, unsigned int option) {
+	GUID settingguid;
+	DWORD settingguidSize = sizeof(settingguid);
+	PowerEnumerate(0, &schemeguid, &subgroupguid, ACCESS_INDIVIDUAL_SETTING, settingIndex, (UCHAR*)&settingguid, &settingguidSize);
+	DWORD DCDefaultIndex = 0;
+	DWORD ACDefaultIndex = 0;
+	PowerReadDCDefaultIndex(0, &schemeguid, &subgroupguid, &settingguid, &DCDefaultIndex);
+	PowerReadACDefaultIndex(0, &schemeguid, &subgroupguid, &settingguid, &ACDefaultIndex);
+	if (option == 0) {
+		PowerWriteDCValueIndex(0, &schemeguid, &subgroupguid, &settingguid, DCDefaultIndex);
+		PowerWriteACValueIndex(0, &schemeguid, &subgroupguid, &settingguid, ACDefaultIndex);
+	}
+	else if (option == 1) {
+		PowerWriteACValueIndex(0, &schemeguid, &subgroupguid, &settingguid, ACDefaultIndex);
+	}
+	else if (option == 2) {
+		PowerWriteDCValueIndex(0, &schemeguid, &subgroupguid, &settingguid, DCDefaultIndex);
+	}
+}
+
+void ResetToDefaultSetting(GUID schemeguid, GUID subgroupguid, GUID settingguid, unsigned int option) {
+	DWORD DCDefaultIndex = 0;
+	DWORD ACDefaultIndex = 0;
+	PowerReadDCDefaultIndex(0, &schemeguid, &subgroupguid, &settingguid, &DCDefaultIndex);
+	PowerReadACDefaultIndex(0, &schemeguid, &subgroupguid, &settingguid, &ACDefaultIndex);
+	if (option == 0) {
+		PowerWriteDCValueIndex(0, &schemeguid, &subgroupguid, &settingguid, DCDefaultIndex);
+		PowerWriteACValueIndex(0, &schemeguid, &subgroupguid, &settingguid, ACDefaultIndex);
+	}
+	else if (option == 1) {
+		PowerWriteACValueIndex(0, &schemeguid, &subgroupguid, &settingguid, ACDefaultIndex);
+	}
+	else if (option == 2) {
+		PowerWriteDCValueIndex(0, &schemeguid, &subgroupguid, &settingguid, DCDefaultIndex);
+	}
+}
+
+DWORD GetSettingValue(GUID schemeguid, GUID subgroupguid, unsigned int settingIndex, unsigned int option) {
+	GUID settingguid;
+	DWORD settingguidSize = sizeof(settingguid);
+	PowerEnumerate(0, &schemeguid, &subgroupguid, ACCESS_INDIVIDUAL_SETTING, settingIndex, (UCHAR*)&settingguid, &settingguidSize);
+	DWORD DCValueIndex = 0;
+	DWORD ACValueIndex = 0;
+	if (option == 0) {
+		printf("Error: Choose option = 1 for AC or option = 2 for DC");
+		return -1;
+	}
+	else if (option == 1) {
+		PowerReadACValueIndex(0, &schemeguid, &subgroupguid, &settingguid, &ACValueIndex);
+		return ACValueIndex;
+	}
+	else if (option == 2) {
+		PowerReadDCValueIndex(0, &schemeguid, &subgroupguid, &settingguid, &DCValueIndex);
+		return DCValueIndex;
+	}
+}
+
+DWORD GetSettingValue(GUID schemeguid, GUID subgroupguid, GUID settingguid, unsigned int option) {
+	DWORD DCValueIndex = 0;
+	DWORD ACValueIndex = 0;
+	if (option == 0) {
+		printf("Error: Choose option = 1 for AC or option = 2 for DC");
+		return -1;
+	}
+	else if (option == 1) {
+		PowerReadACValueIndex(0, &schemeguid, &subgroupguid, &settingguid, &ACValueIndex);
+		return ACValueIndex;
+	}
+	else if (option == 2) {
+		PowerReadDCValueIndex(0, &schemeguid, &subgroupguid, &settingguid, &DCValueIndex);
+		return DCValueIndex;
+	}
+}
+
+DWORD GetDefaultSettingValue(GUID schemeguid, GUID subgroupguid, unsigned int settingIndex, unsigned int option) {
+	GUID settingguid;
+	DWORD settingguidSize = sizeof(settingguid);
+	PowerEnumerate(0, &schemeguid, &subgroupguid, ACCESS_INDIVIDUAL_SETTING, settingIndex, (UCHAR*)&settingguid, &settingguidSize);
+	DWORD DCDefaultIndex = 0;
+	DWORD ACDefaultIndex = 0;
+	if (option == 0) {
+		printf("Error: Choose option = 1 for AC or option = 2 for DC");
+		return -1;
+	}
+	else if (option == 1) {
+		PowerReadACDefaultIndex(0, &schemeguid, &subgroupguid, &settingguid, &ACDefaultIndex);
+		return ACDefaultIndex;
+	}
+	else if (option == 2) {
+		PowerReadDCDefaultIndex(0, &schemeguid, &subgroupguid, &settingguid, &DCDefaultIndex);
+		return DCDefaultIndex;
+	}
+}
+
+DWORD GetDefaultSettingValue(GUID schemeguid, GUID subgroupguid, GUID settingguid, unsigned int option) {
+	DWORD DCDefaultIndex = 0;
+	DWORD ACDefaultIndex = 0;
+	if (option == 0) {
+		printf("Error: Choose option = 1 for AC or option = 2 for DC");
+		return -1;
+	}
+	else if (option == 1) {
+		PowerReadACDefaultIndex(0, &schemeguid, &subgroupguid, &settingguid, &ACDefaultIndex);
+		return ACDefaultIndex;
+	}
+	else if (option == 2) {
+		PowerReadDCDefaultIndex(0, &schemeguid, &subgroupguid, &settingguid, &DCDefaultIndex);
+		return DCDefaultIndex;
+	}
+}
+
 int main()
 {
-	//GetAll();
 	LPOLESTR strGuid;
 	GUID scheme = GetSchemeGUID("Samsung Eco Mode");
 	GUID subgroup = GetSubgroupGUID("Samsung Eco Mode", "Hard disk");

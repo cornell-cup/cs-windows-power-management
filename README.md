@@ -1,20 +1,11 @@
 # cs-windows-power-management
 
 TODO:
-
-read/write AC values
-
-* SetSetting(GUID subgroupguid, unsigned int settingIndex, DWORD value, unsigned int option)
-* SetSetting(GUID settingguid, DWORD value, unsigned int option)
-* ResetToDefaultSetting(GUID subgroupguid, unsigned int settingIndex, unsigned int option)
-* ResetToDefaultSetting(GUID settingguid, unsigned int option)
-* GetSettingValue(GUID subgroupguid, unsigned int settingIndex, unsigned int option)
-* GetSettingValue(GUID settingguid, unsigned int option)
-* GetDefaultSettingValue(GUID subgroupguid, unsigned int settingIndex, unsigned int option)
-* GetDefaultSettingValue(GUID settingguid, unsigned int option)
 * ApplyScheme(string friendlyname) -> SetActiveScheme
 * DeletePowerScheme(string friendlyname) -> DeletePwrScheme
 * CreateCustomeScheme(string friendlyname) -> PowerGetActiveScheme -> PowerDuplicateActiveScheme -> PowerSetActiveScheme
+* Write tests for all the functions to make sure they work properly
+* Comment/document everything
 
 option:
 	0: both
