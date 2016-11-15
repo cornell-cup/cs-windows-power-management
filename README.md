@@ -4,9 +4,6 @@ TODO:
 
 read/write AC values
 
-* GetSchemeGuid(string friendlyname)
-* GetSubgroupGuid(string friendlyname, string friendlysubname)
-* GetSettingGuid(string friendlyname, string friendlysubname, string friendlysettingsname)
 * SetSetting(GUID subgroupguid, unsigned int settingIndex, DWORD value, unsigned int option)
 * SetSetting(GUID settingguid, DWORD value, unsigned int option)
 * ResetToDefaultSetting(GUID subgroupguid, unsigned int settingIndex, unsigned int option)
@@ -15,7 +12,7 @@ read/write AC values
 * GetSettingValue(GUID settingguid, unsigned int option)
 * GetDefaultSettingValue(GUID subgroupguid, unsigned int settingIndex, unsigned int option)
 * GetDefaultSettingValue(GUID settingguid, unsigned int option)
-* ApplySchemeGuid(string friendlyname) -> SetActiveScheme
+* ApplyScheme(string friendlyname) -> SetActiveScheme
 * DeletePowerScheme(string friendlyname) -> DeletePwrScheme
 * CreateCustomeScheme(string friendlyname) -> PowerGetActiveScheme -> PowerDuplicateActiveScheme -> PowerSetActiveScheme
 
