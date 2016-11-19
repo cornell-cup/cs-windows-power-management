@@ -1,0 +1,2 @@
+index,Samsung Eco Mode,Hard disk,1,80,0
+name,Samsung Eco Mode,Battery,Low battery level,default,0

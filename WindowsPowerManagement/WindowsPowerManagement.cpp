@@ -6,6 +6,9 @@
 #include<PowrProf.h>
 #include<wchar.h>
 #include<string>
+#include<fstream>
+#include<sstream>
+#include<vector>
 
 
 void GetAll() {
@@ -387,9 +390,53 @@ DWORD GetDefaultSettingValue(GUID schemeguid, GUID subgroupguid, GUID settinggui
 	}
 }
 
+void split(const std::string &s, char delim, std::vector<std::string> &elems) {
+	std::stringstream ss;
+	ss.str(s);
+	std::string item;
+	while (std::getline(ss, item, delim)) {
+		elems.push_back(item);
+	}
+}
+
+
+std::vector<std::string> split(const std::string &s, char delim) {
+	std::vector<std::string> elems;
+	split(s, delim, elems);
+	return elems;
+}
+
+void handleFile(std::ifstream& infile) {
+	std::string line;
+	while (std::getline(infile, line)) {
+		std::vector<std::string> x = split(line, ',');
+		GUID scheme = GetSchemeGUID((CHAR*)x[1].c_str());
+		GUID subgroup = GetSubgroupGUID((CHAR*)x[1].c_str(), ((CHAR*)x[2].c_str()));
+		if (strcmp(x[0].c_str(),"index") == 0) {
+			if (strcmp(x[4].c_str(), "default") == 0) {
+				ResetToDefaultSetting(scheme, subgroup, atoi(x[3].c_str()), atoi(x[5].c_str()));
+			}
+			else {
+				SetSetting(scheme, subgroup, atoi(x[3].c_str()), atoi(x[4].c_str()), atoi(x[5].c_str()));
+			}
+		}
+		else if (strcmp(x[0].c_str(), "name") == 0) {
+			GUID setting = GetSettingGUID((CHAR*)x[1].c_str(), (CHAR*)x[2].c_str(), (CHAR*)x[3].c_str());
+			if (strcmp(x[4].c_str(), "default") == 0) {
+				ResetToDefaultSetting(scheme, subgroup, setting, atoi(x[5].c_str()));
+			}
+			else {
+				SetSetting(scheme, subgroup, setting, atoi(x[4].c_str()), atoi(x[5].c_str()));
+			}
+		}
+	}
+}
+
 int main()
 {
-	LPOLESTR strGuid;
+	std::ifstream infile("settings_input.txt");
+	handleFile(infile);
+	/*LPOLESTR strGuid;
 	GUID scheme = GetSchemeGUID("Samsung Eco Mode");
 	GUID subgroup = GetSubgroupGUID("Samsung Eco Mode", "Hard disk");
 	GUID setting = GetSettingGUID("Samsung Eco Mode", "Hard disk", "Maximum Power Level");
@@ -403,7 +450,7 @@ int main()
 	wprintf(L"%s\n", strSettingGuid);
 	UCHAR settingname[2048];
 	DWORD settingnameSize = 2048;
-	SetSetting(scheme, subgroup, setting, 100, 0);
+	SetSetting(scheme, subgroup, setting, 100, 0);*/
 	GetAll();
 	int pause;
 	scanf_s("%d\n", &pause);
