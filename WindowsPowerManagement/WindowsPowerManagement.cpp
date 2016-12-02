@@ -10,7 +10,7 @@
 #include<sstream>
 #include<vector>
 
-
+// Prints all Power Plans, their subgroups, and settings under each subgroup
 void GetAll() {
 	GUID guid;
 	DWORD guidSize = sizeof(guid);
@@ -74,16 +74,6 @@ void GetAll() {
 	}
 }
 
-// Convert a wide Unicode string to an UTF8 string
-std::string utf8_encode(const std::wstring &wstr)
-{
-	if (wstr.empty()) return std::string();
-	int size_needed = WideCharToMultiByte(CP_UTF8, 0, &wstr[0], (int)wstr.size(), NULL, 0, NULL, NULL);
-	std::string strTo(size_needed, 0);
-	WideCharToMultiByte(CP_UTF8, 0, &wstr[0], (int)wstr.size(), &strTo[0], size_needed, NULL, NULL);
-	return strTo;
-}
-
 // Convert an UTF8 string to a wide Unicode String
 std::wstring utf8_decode(const std::string &str)
 {
@@ -94,6 +84,7 @@ std::wstring utf8_decode(const std::string &str)
 	return wstrTo;
 }
 
+// Convert the string returned by the Power API to the same format as the inputted wstring
 CHAR* remove_zeros(UCHAR a[])
 {
 	int  si;   // Source index
@@ -112,14 +103,15 @@ CHAR* remove_zeros(UCHAR a[])
 	for (si = 0; si < len; si++)
 	{
 		if ((unsigned int)a[si] != 0 && (unsigned int)a[si + 1] == 0) {
-			b[di] = a[si];    // Keep/move the element
+			b[di] = a[si];
 			di++;
 		}
 	}
-	b[di] = '\0';
+	b[di] = '\0'; // Indicates end of string
 	return b;
 }
 
+// Returns GUID of the power plan based on its friendly name
 GUID GetSchemeGUID(char friendlyName[]) {
 	GUID guid;
 	DWORD guidSize = sizeof(guid);
@@ -145,6 +137,7 @@ GUID GetSchemeGUID(char friendlyName[]) {
 	return schemeguid;
 }
 
+// Returns GUID of the subgroup based on its power plan's and its friendly name
 GUID GetSubgroupGUID(char friendlyName[], char friendlySubName[]) {
 	GUID guid;
 	DWORD guidSize = sizeof(guid);
@@ -187,6 +180,7 @@ GUID GetSubgroupGUID(char friendlyName[], char friendlySubName[]) {
 	return subgroupguid;
 }
 
+// Returns GUID of the setting based on its power plans', subgroup's and its friendly names
 GUID GetSettingGUID(char friendlyName[], char friendlySubName[], char friendlySettingName[]) {
 	GUID guid;
 	DWORD guidSize = sizeof(guid);
@@ -246,6 +240,7 @@ GUID GetSettingGUID(char friendlyName[], char friendlySubName[], char friendlySe
 	return settingsguid;
 }
 
+// Sets the nth setting under a specified power plan and subgroup with a user specified value, where n is the settingIndex
 void SetSetting(GUID schemeguid, GUID subgroupguid, unsigned int settingIndex, DWORD value, unsigned int option) {
 	GUID settingguid;
 	DWORD settingguidSize = sizeof(settingguid);
@@ -264,6 +259,7 @@ void SetSetting(GUID schemeguid, GUID subgroupguid, unsigned int settingIndex, D
 	}
 }
 
+// Sets the value of the setting specified by settingguid
 void SetSetting(GUID schemeguid, GUID subgroupguid, GUID settingguid, DWORD value, unsigned int option) {
 	DWORD DCValueIndex = value;
 	DWORD ACValueIndex = value;
@@ -279,6 +275,7 @@ void SetSetting(GUID schemeguid, GUID subgroupguid, GUID settingguid, DWORD valu
 	}
 }
 
+// Resets the nth setting under a specified power plan and subgroup with its default value, where n is the settingIndex
 void ResetToDefaultSetting(GUID schemeguid, GUID subgroupguid, unsigned int settingIndex, unsigned int option) {
 	GUID settingguid;
 	DWORD settingguidSize = sizeof(settingguid);
@@ -299,6 +296,7 @@ void ResetToDefaultSetting(GUID schemeguid, GUID subgroupguid, unsigned int sett
 	}
 }
 
+// Resets the value of the setting specified by settingguid to its default
 void ResetToDefaultSetting(GUID schemeguid, GUID subgroupguid, GUID settingguid, unsigned int option) {
 	DWORD DCDefaultIndex = 0;
 	DWORD ACDefaultIndex = 0;
@@ -316,6 +314,7 @@ void ResetToDefaultSetting(GUID schemeguid, GUID subgroupguid, GUID settingguid,
 	}
 }
 
+// Returns the current value of the nth setting under a specified power plan and subgroup, where n is the settingIndex
 DWORD GetSettingValue(GUID schemeguid, GUID subgroupguid, unsigned int settingIndex, unsigned int option) {
 	GUID settingguid;
 	DWORD settingguidSize = sizeof(settingguid);
@@ -336,6 +335,7 @@ DWORD GetSettingValue(GUID schemeguid, GUID subgroupguid, unsigned int settingIn
 	}
 }
 
+// Returns the current value of the setting specified by settingguid
 DWORD GetSettingValue(GUID schemeguid, GUID subgroupguid, GUID settingguid, unsigned int option) {
 	DWORD DCValueIndex = 0;
 	DWORD ACValueIndex = 0;
@@ -353,6 +353,7 @@ DWORD GetSettingValue(GUID schemeguid, GUID subgroupguid, GUID settingguid, unsi
 	}
 }
 
+// Returns the default value of the nth setting under a specified power plan and subgroup, where n is the settingIndex
 DWORD GetDefaultSettingValue(GUID schemeguid, GUID subgroupguid, unsigned int settingIndex, unsigned int option) {
 	GUID settingguid;
 	DWORD settingguidSize = sizeof(settingguid);
@@ -373,6 +374,7 @@ DWORD GetDefaultSettingValue(GUID schemeguid, GUID subgroupguid, unsigned int se
 	}
 }
 
+// Returns the default value of the setting specified by settingguid
 DWORD GetDefaultSettingValue(GUID schemeguid, GUID subgroupguid, GUID settingguid, unsigned int option) {
 	DWORD DCDefaultIndex = 0;
 	DWORD ACDefaultIndex = 0;
@@ -390,6 +392,7 @@ DWORD GetDefaultSettingValue(GUID schemeguid, GUID subgroupguid, GUID settinggui
 	}
 }
 
+// Helper function for parsing input from file
 void split(const std::string &s, char delim, std::vector<std::string> &elems) {
 	std::stringstream ss;
 	ss.str(s);
@@ -399,59 +402,97 @@ void split(const std::string &s, char delim, std::vector<std::string> &elems) {
 	}
 }
 
-
+// Helper function for parsing input from file
 std::vector<std::string> split(const std::string &s, char delim) {
 	std::vector<std::string> elems;
 	split(s, delim, elems);
 	return elems;
 }
 
+// Sets all the settings and values listed in an inputted file
 void handleFile(std::ifstream& infile) {
 	std::string line;
 	while (std::getline(infile, line)) {
-		std::vector<std::string> x = split(line, ',');
-		GUID scheme = GetSchemeGUID((CHAR*)x[1].c_str());
-		GUID subgroup = GetSubgroupGUID((CHAR*)x[1].c_str(), ((CHAR*)x[2].c_str()));
-		if (strcmp(x[0].c_str(),"index") == 0) {
-			if (strcmp(x[4].c_str(), "default") == 0) {
-				ResetToDefaultSetting(scheme, subgroup, atoi(x[3].c_str()), atoi(x[5].c_str()));
+		std::vector<std::string> values = split(line, ',');
+		GUID scheme = GetSchemeGUID((CHAR*)values[1].c_str());
+		GUID subgroup = GetSubgroupGUID((CHAR*)values[1].c_str(), ((CHAR*)values[2].c_str()));
+		if (strcmp(values[0].c_str(),"index") == 0) {
+			if (strcmp(values[4].c_str(), "default") == 0) {
+				ResetToDefaultSetting(scheme, subgroup, atoi(values[3].c_str()), atoi(values[5].c_str()));
 			}
 			else {
-				SetSetting(scheme, subgroup, atoi(x[3].c_str()), atoi(x[4].c_str()), atoi(x[5].c_str()));
+				SetSetting(scheme, subgroup, atoi(values[3].c_str()), atoi(values[4].c_str()), atoi(values[5].c_str()));
 			}
 		}
-		else if (strcmp(x[0].c_str(), "name") == 0) {
-			GUID setting = GetSettingGUID((CHAR*)x[1].c_str(), (CHAR*)x[2].c_str(), (CHAR*)x[3].c_str());
-			if (strcmp(x[4].c_str(), "default") == 0) {
-				ResetToDefaultSetting(scheme, subgroup, setting, atoi(x[5].c_str()));
+		else if (strcmp(values[0].c_str(), "name") == 0) {
+			GUID setting = GetSettingGUID((CHAR*)values[1].c_str(), (CHAR*)values[2].c_str(), (CHAR*)values[3].c_str());
+			if (strcmp(values[4].c_str(), "default") == 0) {
+				ResetToDefaultSetting(scheme, subgroup, setting, atoi(values[5].c_str()));
 			}
 			else {
-				SetSetting(scheme, subgroup, setting, atoi(x[4].c_str()), atoi(x[5].c_str()));
+				SetSetting(scheme, subgroup, setting, atoi(values[4].c_str()), atoi(values[5].c_str()));
 			}
 		}
 	}
+}
+
+void ResetAllToDefault() {
+	GUID guid;
+	DWORD guidSize = sizeof(guid);
+	unsigned int schemeIndex = 0;
+	while (PowerEnumerate(0, 0, 0, ACCESS_SCHEME, schemeIndex, (UCHAR*)&guid, &guidSize) == 0) {
+		UCHAR name[2048];
+		DWORD nameSize = 2048;
+		DWORD error;
+		if ((error = PowerReadFriendlyName(0, &guid, &NO_SUBGROUP_GUID, 0, name, &nameSize)) != 0) {
+			printf("Error: %d\n", error);
+		}
+
+		GUID subguid;
+		DWORD subguidSize = sizeof(subguid);
+		unsigned int subgroupIndex = 0;
+		while (PowerEnumerate(0, &guid, 0, ACCESS_SUBGROUP, subgroupIndex, (UCHAR*)&subguid, &subguidSize) == 0) {
+			nameSize = 2048;
+			if ((error = PowerReadFriendlyName(0, &guid, &subguid, 0, name, &nameSize)) != 0) {
+				printf("Subgroup Error: %d\n", error);
+			}
+
+			GUID settingguid;
+			DWORD settingguidSize = sizeof(settingguid);
+			unsigned int settingIndex = 0;
+			while (PowerEnumerate(0, &guid, &subguid, ACCESS_INDIVIDUAL_SETTING, settingIndex, (UCHAR*)&settingguid, &settingguidSize) == 0) {
+				nameSize = 2048;
+				if ((error = PowerReadFriendlyName(0, &guid, &subguid, &settingguid, name, &nameSize)) == 0) {
+					ResetToDefaultSetting(guid, subguid, settingguid, 0);
+				}
+				else {
+					printf("Setting Error: %d\n", error);
+				}
+				
+				DWORD DCValueIndex = 0;
+				DWORD DCDefaultIndex = 0;
+				DWORD ACValueIndex = 0;
+				DWORD ACDefaultIndex = 0;
+				PowerReadDCValueIndex(0, &guid, &subguid, &settingguid, &DCValueIndex);
+				PowerReadDCDefaultIndex(0, &guid, &subguid, &settingguid, &DCDefaultIndex);
+				PowerReadACValueIndex(0, &guid, &subguid, &settingguid, &ACValueIndex);
+				PowerReadACDefaultIndex(0, &guid, &subguid, &settingguid, &ACDefaultIndex);
+				settingIndex++;
+			}
+			subgroupIndex++;
+		}
+		schemeIndex++;
+	}
+	printf("Reset all settings.\n");
 }
 
 int main()
 {
 	std::ifstream infile("settings_input.txt");
 	handleFile(infile);
-	/*LPOLESTR strGuid;
-	GUID scheme = GetSchemeGUID("Samsung Eco Mode");
-	GUID subgroup = GetSubgroupGUID("Samsung Eco Mode", "Hard disk");
-	GUID setting = GetSettingGUID("Samsung Eco Mode", "Hard disk", "Maximum Power Level");
-	StringFromCLSID(scheme, &strGuid);
-	wprintf(L"%s\n", strGuid);
-	LPOLESTR strSubGuid;
-	StringFromCLSID(subgroup, &strSubGuid);
-	wprintf(L"%s\n", strSubGuid);
-	LPOLESTR strSettingGuid;
-	StringFromCLSID(setting, &strSettingGuid);
-	wprintf(L"%s\n", strSettingGuid);
-	UCHAR settingname[2048];
-	DWORD settingnameSize = 2048;
-	SetSetting(scheme, subgroup, setting, 100, 0);*/
-	GetAll();
+	printf("\n\n");
+	ResetAllToDefault();
+	//GetAll();
 	int pause;
 	scanf_s("%d\n", &pause);
     return 0;
