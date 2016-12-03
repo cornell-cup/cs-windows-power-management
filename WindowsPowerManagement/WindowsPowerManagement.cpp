@@ -280,10 +280,8 @@ void ResetToDefaultSetting(GUID schemeguid, GUID subgroupguid, unsigned int sett
 	GUID settingguid;
 	DWORD settingguidSize = sizeof(settingguid);
 	PowerEnumerate(0, &schemeguid, &subgroupguid, ACCESS_INDIVIDUAL_SETTING, settingIndex, (UCHAR*)&settingguid, &settingguidSize);
-	DWORD DCDefaultIndex = 0;
-	DWORD ACDefaultIndex = 0;
-	PowerReadDCDefaultIndex(0, &schemeguid, &subgroupguid, &settingguid, &DCDefaultIndex);
-	PowerReadACDefaultIndex(0, &schemeguid, &subgroupguid, &settingguid, &ACDefaultIndex);
+	DWORD DCDefaultIndex = GetDefaultSettingValue(schemeguid, subgroupguid, settingguid, 2);
+	DWORD ACDefaultIndex = GetDefaultSettingValue(schemeguid, subgroupguid, settingguid, 1);
 	if (option == 0) {
 		PowerWriteDCValueIndex(0, &schemeguid, &subgroupguid, &settingguid, DCDefaultIndex);
 		PowerWriteACValueIndex(0, &schemeguid, &subgroupguid, &settingguid, ACDefaultIndex);
@@ -300,8 +298,8 @@ void ResetToDefaultSetting(GUID schemeguid, GUID subgroupguid, unsigned int sett
 void ResetToDefaultSetting(GUID schemeguid, GUID subgroupguid, GUID settingguid, unsigned int option) {
 	DWORD DCDefaultIndex = 0;
 	DWORD ACDefaultIndex = 0;
-	PowerReadDCDefaultIndex(0, &schemeguid, &subgroupguid, &settingguid, &DCDefaultIndex);
-	PowerReadACDefaultIndex(0, &schemeguid, &subgroupguid, &settingguid, &ACDefaultIndex);
+	DWORD DCDefaultIndex = GetDefaultSettingValue(schemeguid, subgroupguid, settingguid, 2);
+	DWORD ACDefaultIndex = GetDefaultSettingValue(schemeguid, subgroupguid, settingguid, 1);
 	if (option == 0) {
 		PowerWriteDCValueIndex(0, &schemeguid, &subgroupguid, &settingguid, DCDefaultIndex);
 		PowerWriteACValueIndex(0, &schemeguid, &subgroupguid, &settingguid, ACDefaultIndex);
@@ -436,6 +434,7 @@ void handleFile(std::ifstream& infile) {
 	}
 }
 
+// Resets all settings under all plans to default
 void ResetAllToDefault() {
 	GUID guid;
 	DWORD guidSize = sizeof(guid);
